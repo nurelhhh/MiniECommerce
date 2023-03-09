@@ -23,14 +23,24 @@ namespace MiniECommerce.Controllers
         }
 
         [HttpPost("/CreateOrder")]
-        public IActionResult Create([FromBody] OrderCreateModel model)
+        public async Task<IActionResult> Create([FromBody] OrderCreateModel model)
         {
             if (model.ItemId == Guid.Empty)
             {
                 return BadRequest("ItemId cannot be all zero");
             }
 
-            var newOrder = this.orderService.Create(model);
+            (var item, var message) = await this.orderService.CheckItem(model.ItemId);
+            if (item == null)
+            {
+                if (string.IsNullOrEmpty(message) == false)
+                {
+                    return BadRequest(message);
+                }
+                return BadRequest("Item cannot be found");
+            }
+
+            var newOrder = this.orderService.Create(item);
             orderList.Add(newOrder);
             return Ok(newOrder);
         }

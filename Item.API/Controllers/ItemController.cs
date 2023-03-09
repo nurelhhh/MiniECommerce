@@ -17,9 +17,24 @@ namespace Item.API.Controllers
         }
 
         [HttpGet("/GetItems")]
-        public ActionResult<List<ItemGetModel>> Get()
+        public ActionResult<List<ItemGetModel>> GetAll()
         {
             return itemList;
+        }
+
+        [HttpPost("/GetItem")]
+        public ActionResult<ItemGetModel> GetOne([FromBody] ItemFindModel model)
+        {
+            var item = itemList
+                .Where(Q => Q.ItemId.Equals(model.ItemId))
+                .FirstOrDefault();
+
+            if (item == null)
+            {
+                return NotFound(null);
+            }
+
+            return item;
         }
 
         [HttpPost("/CreateItem")]
